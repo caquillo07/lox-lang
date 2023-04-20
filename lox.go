@@ -3,10 +3,7 @@ package main
 import (
     "bufio"
     "fmt"
-    "io"
     "os"
-    "strings"
-    "text/scanner"
 )
 
 type Lox struct {
@@ -35,21 +32,18 @@ func (l Lox) runPrompt() error {
             return err
         }
         l.hadErr = false
-        fmt.Printf("> ")
     }
     return nil
 }
 
 func (l Lox) run(source string) error {
-    s := newSourceScanner(strings.NewReader(source))
-    for {
-        token := s.Scan()
-        if token == scanner.EOF {
-            fmt.Println("got EOF, we done")
-            return nil // todo(hector) remove?
-        }
-        fmt.Printf(">> %v - %q - %q\n", token, scanner.TokenString(token), s.TokenText())
+    scanner := NewScanner(source)
+    tokens := scanner.scanTokens()
+
+    for _, token := range tokens {
+        fmt.Println(token)
     }
+    return nil
 }
 
 func (l Lox) err(line int, message string) {
@@ -61,18 +55,4 @@ func (l Lox) report(line int, where string, message string) {
         panic(err)
     }
     l.hadErr = true
-}
-
-func newSourceScanner(r io.Reader) scanner.Scanner {
-    var s scanner.Scanner
-    s.Init(r)
-    s.Mode = scanner.ScanChars |
-        scanner.ScanFloats |
-        scanner.ScanIdents |
-        scanner.ScanInts |
-        scanner.ScanStrings |
-        scanner.ScanRawStrings |
-        scanner.ScanComments
-    s.Whitespace = 1<<'\t' | 1<<'\r' | 1<<' '
-    return s
 }

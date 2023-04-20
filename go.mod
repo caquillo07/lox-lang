@@ -1,3 +1,3 @@
 module github.com/caquillo07/lox-lang
 
-go 1.18
+go 1.20
